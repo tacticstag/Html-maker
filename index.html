@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live HTML Code Editor with Scratch-like Blocks</title>
+    <title>Live HTML Code Editor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,6 +25,7 @@
             background-color: #fff;
             padding: 20px;
             min-height: 400px;
+            position: relative; /* For positions of popups */
         }
 
         h1 {
@@ -37,7 +37,7 @@
             display: block;
         }
 
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="file"] {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 5px 0;
@@ -63,20 +63,40 @@
             color: white;
             border-radius: 5px;
             transition: background-color 0.3s;
+            display: block;      /* Added for button alignment */
+            margin-bottom: 10px; /* Added for spacing */
         }
 
         button:hover {
             background-color: #0056b3;
         }
 
-        .block {
+        .draggable {
             padding: 10px;
             border: 1px solid #999;
             margin: 10px 0;
             border-radius: 5px;
             background-color: #eee;
+            cursor: move;
+            position: absolute; /* Change for absolute positioning */
+            width: auto; /* Adjust according to content */
+            min-width: 100px; /* Minimum size for drag area */
         }
 
+        .gradient-background {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .gradient-bg {
+            border: 1px solid black;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        /* Style for the popup message */
         #popup {
             position: absolute;
             display: none;
@@ -84,103 +104,180 @@
             background-color: #fff;
             padding: 10px;
             z-index: 1000;
-            width: 200px;
+            max-width: 200px;
+            width: auto;
         }
+        .close-popup {
+            cursor: pointer;
+            color: red;
+            float: right;
+        }
+
     </style>
 </head>
-
 <body>
 
-    <div class="input-panel">
-        <h1>Live HTML Code Maker</h1>
+<div class="input-panel">
+    <h1>Live HTML Code Maker</h1>
 
-        <label for="bg-image">Background Image URL:</label>
-        <input type="text" id="bg-image" placeholder="Enter background image URL" oninput="updatePreview()">
+    <label for="bg-image">Background Image URL:</label>
+    <input type="text" id="bg-image" placeholder="Enter background image URL" oninput="updatePreview()">
 
-        <label for="button-text">Button Text:</label>
-        <input type="text" id="button-text" placeholder="Enter button text" oninput="updatePreview()">
-
-        <label for="gif-url">GIF URL:</label>
-        <input type="text" id="gif-url" placeholder="Enter GIF URL" oninput="updatePreview()">
-
-        <h2>Generated HTML Code</h2>
-        <textarea id="output" readonly></textarea>
-
-        <button id="add-text-btn">Add Text Block</button>
-        <button id="add-button-btn">Add Button Block</button>
+    <label for="gradient-bg">Gradient Background:</label>
+    <div class="gradient-background">
+        <input type="text" id="gradient-color1" placeholder="Color 1 (e.g., #ff0000)" oninput="updatePreview()">
+        <input type="text" id="gradient-color2" placeholder="Color 2 (e.g., #00ff00)" oninput="updatePreview()">
+        <button id="set-gradient">Set Gradient</button>
     </div>
 
-    <div class="output-panel" id="preview">
-        <h2>Live Preview</h2>
-        <div id="live-preview" style="padding: 20px; border: 1px solid #ccc;"></div>
-    </div>
+    <label for="button-text">Button Text:</label>
+    <input type="text" id="button-text" placeholder="Enter button text" oninput="updatePreview()">
 
-    <div id="popup">Random Popup!</div>
+    <label for="gif-url">GIF URL:</label>
+    <input type="text" id="gif-url" placeholder="Enter GIF URL" oninput="updatePreview()">
 
-    <script>
-        function updatePreview() {
-            const bgImage = document.getElementById('bg-image').value;
-            const buttonText = document.getElementById('button-text').value;
-            const gifUrl = document.getElementById('gif-url').value;
+    <label for="image-upload">Upload a Sticker/Image:</label>
+    <input type="file" id="image-upload" accept="image/*" onchange="addImage(this)">
 
-            const livePreviewDiv = document.getElementById('live-preview');
+    <h2>Generated HTML Code</h2>
+    <textarea id="output" readonly></textarea>
 
-            // Set the HTML of the live preview div
-            livePreviewDiv.innerHTML = `
-                <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
-                    <button style="padding: 10px 20px; font-size: 16px; transition: background-color 0.3s; cursor: pointer;">${buttonText}</button><br><br>
-                    <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
-                </div>
-            `;
+    <button id="add-text-btn">Add Text Block</button>
+    <button id="add-button-btn">Add Button Block</button>
+    <button id="add-popup-btn">Add Popup</button>
+</div>
 
-            // Update the output code in the output div
-            const generatedHTML = `
-                <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
-                    <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
-                    <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
-                </div>
-            `;
+<div class="output-panel" id="preview">
+    <h2>Live Preview</h2>
+    <div id="live-preview" style="padding: 20px; border: 1px solid #ccc;"></div>
+</div>
 
-            document.getElementById('output').value = generatedHTML.trim();
+<div id="popup">
+    <span class="close-popup" onclick="this.parentElement.style.display='none'">&times;</span>
+    Random Popup!
+</div>
+
+<script>
+    function updatePreview() {
+        const bgImage = document.getElementById('bg-image').value;
+        const gifUrl = document.getElementById('gif-url').value;
+        const buttonText = document.getElementById('button-text').value;
+
+        const gradientColor1 = document.getElementById('gradient-color1').value;
+        const gradientColor2 = document.getElementById('gradient-color2').value;
+        const setGradientButton = document.getElementById('set-gradient');
+
+        const livePreviewDiv = document.getElementById('live-preview');
+
+        // Setting the background image or gradient
+        let backgroundStyle = `'`;
+        if (bgImage) {
+            backgroundStyle = `background-image: url('${bgImage}');`;
+        } else if (gradientColor1 && gradientColor2) {
+            backgroundStyle = `background: linear-gradient(${gradientColor1}, ${gradientColor2});`;
+        }
+        
+        // Set the HTML of the live preview div
+        livePreviewDiv.innerHTML = `
+            <div style="${backgroundStyle} padding: 20px; border: 1px solid #ccc;">
+                <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
+                <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
+            </div>
+        `;
+
+        // Update the output code in the output div
+        const generatedHTML = `
+            <div style="${backgroundStyle} padding: 20px; border: 1px solid #ccc;">
+                <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
+                <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
+            </div>
+        `;
+
+        document.getElementById('output').value = generatedHTML.trim();
+    }
+
+    function addImage(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgBlock = `<img src="${e.target.result}" style="width: 100px; height: auto;" class="draggable" draggable="true">`;
+            document.getElementById('live-preview').innerHTML += imgBlock;
+            enableDragging();
+            updateOutput();
+        }
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('add-text-btn').addEventListener('click', () => {
+        const placeholderText = prompt("Enter text to add:");
+        if (placeholderText) {
+            const blockHtml = `<div contenteditable="true" class="draggable" style="background-color: #eee;">${placeholderText}</div>`;
+            document.getElementById('live-preview').innerHTML += blockHtml;
+            enableDragging();
+            updateOutput();
+        }
+    });
+
+    document.getElementById('add-button-btn').addEventListener('click', () => {
+        const buttonText = prompt("Enter button text:");
+        if (buttonText) {
+            const blockHtml = `<button class="draggable" style="padding: 10px; margin-top: 10px;">${buttonText}</button>`;
+            document.getElementById('live-preview').innerHTML += blockHtml;
+            enableDragging();
+            updateOutput();
+        }
+    });
+
+    document.getElementById('add-popup-btn').addEventListener('click', () => {
+        const popupText = prompt("Enter text for the popup:");
+        if (popupText) {
+            const popup = `
+                <div class="draggable" style="border: 1px solid #999; padding: 10px; background-color: #fff; position: absolute;">
+                    <span class="close-popup" onclick="this.parentElement.style.display='none'">&times;</span>
+                    ${popupText}
+                </div>`;
+            document.getElementById('live-preview').innerHTML += popup;
+            enableDragging();
+            updateOutput();
+        }
+    });
+
+    function updateOutput() {
+        const previewHtml = document.getElementById('live-preview').innerHTML;
+        document.getElementById('output').value = previewHtml;
+    }
+
+    // Enable dragging for elements
+    function enableDragging() {
+        const draggables = document.querySelectorAll('.draggable');
+        draggables.forEach(draggable => {
+            draggable.addEventListener('mousedown', startDrag);
+        });
+    }
+
+    function startDrag(event) {
+        const draggable = event.target;
+        let offsetX = event.clientX - draggable.getBoundingClientRect().left;
+        let offsetY = event.clientY - draggable.getBoundingClientRect().top;
+
+        function dragMove(event) {
+            draggable.style.position = 'absolute';
+            draggable.style.left = (event.clientX - offsetX) + 'px';
+            draggable.style.top = (event.clientY - offsetY) + 'px';
+            updateOutput(); // Update the output after dragging
         }
 
-        document.getElementById('add-text-btn').addEventListener('click', () => {
-            const placeholderText = prompt("Enter text to add:");
-            if (placeholderText) {
-                const blockHtml = `<div class="block" contenteditable="true">${placeholderText}</div>`;
-                document.getElementById('live-preview').innerHTML += blockHtml;
-                updateOutput();
-            }
-        });
-
-        document.getElementById('add-button-btn').addEventListener('click', () => {
-            const buttonText = prompt("Enter button text:");
-            if (buttonText) {
-                const blockHtml = `<button class="block" style="padding: 10px; margin-top: 10px;">${buttonText}</button>`;
-                document.getElementById('live-preview').innerHTML += blockHtml;
-                updateOutput();
-            }
-        });
-
-        function updateOutput() {
-            const previewHtml = document.getElementById('live-preview').innerHTML;
-            document.getElementById('output').value = previewHtml;
+        function dragEnd() {
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
         }
 
-        // Random Popup implementation
-        setInterval(() => {
-            const popup = document.getElementById('popup');
-            popup.style.display = 'block';
-            popup.style.top = Math.random() * (window.innerHeight - 100) + 'px';
-            popup.style.left = Math.random() * (window.innerWidth - 200) + 'px';
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+    }
 
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, 2000); // Display for 2 seconds
-        }, 5000); // Random popup every 5 seconds
-
-    </script>
+    document.getElementById('set-gradient').addEventListener('click', updatePreview);
+</script>
 
 </body>
-
 </html>
