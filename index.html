@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .output {
+            border: 1px solid #aaa;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<h1>HTML Code Maker</h1>
+
+<label for="bg-image">Background Image URL:</label>
+<input type="text" id="bg-image" placeholder="Enter background image URL"><br><br>
+
+<label for="button-text">Button Text:</label>
+<input type="text" id="button-text" placeholder="Enter button text"><br><br>
+
+<label for="gif-url">GIF URL:</label>
+<input type="text" id="gif-url" placeholder="Enter GIF URL"><br><br>
+
+<button onclick="addElement()">Add Button</button>
+
+<h2>Generated HTML Code</h2>
+<div class="output" id="output"></div>
+
+<script>
+    function addElement() {
+        const bgImage = document.getElementById('bg-image').value;
+        const buttonText = document.getElementById('button-text').value;
+        const gifUrl = document.getElementById('gif-url').value;
+
+        let generatedHTML = `
+            <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc;">
+                <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
+                <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
+            </div>
+        `;
+
+        document.getElementById('output').textContent = generatedHTML.trim();
+    }
+</script>
+
+</body>
+</html>
