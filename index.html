@@ -3,52 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Code Generator</title>
+    <title>Live HTML Code Editor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
             margin: 20px;
-            padding: 20px;
+            gap: 20px;
+        }
+        .input-panel {
+            flex: 1;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
+            padding: 20px;
+        }
+        .output-panel {
+            flex: 1;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 20px;
+            min-height: 400px;
         }
         h1 {
             text-align: center;
         }
-        .output {
-            border: 1px solid #aaa;
+        label {
+            margin-top: 10px;
+            display: block;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
             padding: 10px;
-            margin-top: 20px;
-            background-color: #fff;
+            margin: 5px 0;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-<h1>HTML Code Maker</h1>
+<div class="input-panel">
+    <h1>Live HTML Code Maker</h1>
+    
+    <label for="bg-image">Background Image URL:</label>
+    <input type="text" id="bg-image" placeholder="Enter background image URL" oninput="updatePreview()">
 
-<label for="bg-image">Background Image URL:</label>
-<input type="text" id="bg-image" placeholder="Enter background image URL"><br><br>
+    <label for="button-text">Button Text:</label>
+    <input type="text" id="button-text" placeholder="Enter button text" oninput="updatePreview()">
 
-<label for="button-text">Button Text:</label>
-<input type="text" id="button-text" placeholder="Enter button text"><br><br>
+    <label for="gif-url">GIF URL:</label>
+    <input type="text" id="gif-url" placeholder="Enter GIF URL" oninput="updatePreview()">
 
-<label for="gif-url">GIF URL:</label>
-<input type="text" id="gif-url" placeholder="Enter GIF URL"><br><br>
+    <h2>Generated HTML Code</h2>
+    <div class="output" id="output"></div>
+</div>
 
-<button onclick="addElement()">Add Button</button>
-
-<h2>Generated HTML Code</h2>
-<div class="output" id="output"></div>
+<div class="output-panel" id="preview">
+    <h2>Live Preview</h2>
+    <div id="live-preview" style="padding: 20px; border: 1px solid #ccc;"></div>
+</div>
 
 <script>
-    function addElement() {
+    function updatePreview() {
         const bgImage = document.getElementById('bg-image').value;
         const buttonText = document.getElementById('button-text').value;
         const gifUrl = document.getElementById('gif-url').value;
 
-        let generatedHTML = `
-            <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc;">
+        const livePreviewDiv = document.getElementById('live-preview');
+        
+        // Set the HTML of the live preview div
+        livePreviewDiv.innerHTML = `
+            <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
+                <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
+                <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
+            </div>
+        `;
+        
+        // Update the output code in the output div
+        const generatedHTML =`
+            <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
                 <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
                 <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
             </div>
