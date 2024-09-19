@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live HTML Code Editor</title>
+    <title>Live HTML Code Editor with Scratch-like Blocks</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,12 +12,14 @@
             margin: 20px;
             gap: 20px;
         }
+
         .input-panel {
             flex: 1;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
             padding: 20px;
         }
+
         .output-panel {
             flex: 1;
             border: 1px solid #ccc;
@@ -24,20 +27,33 @@
             padding: 20px;
             min-height: 400px;
         }
+
         h1 {
             text-align: center;
         }
+
         label {
             margin-top: 10px;
             display: block;
         }
-        input[type="text"] {
+
+        input[type="text"], input[type="number"] {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 5px 0;
             border: 1px solid #aaa;
             border-radius: 5px;
         }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -48,61 +64,123 @@
             border-radius: 5px;
             transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
+        .block {
+            padding: 10px;
+            border: 1px solid #999;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #eee;
+        }
+
+        #popup {
+            position: absolute;
+            display: none;
+            border: 1px solid #000;
+            background-color: #fff;
+            padding: 10px;
+            z-index: 1000;
+            width: 200px;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="input-panel">
-    <h1>Live HTML Code Maker</h1>
-    
-    <label for="bg-image">Background Image URL:</label>
-    <input type="text" id="bg-image" placeholder="Enter background image URL" oninput="updatePreview()">
+    <div class="input-panel">
+        <h1>Live HTML Code Maker</h1>
 
-    <label for="button-text">Button Text:</label>
-    <input type="text" id="button-text" placeholder="Enter button text" oninput="updatePreview()">
+        <label for="bg-image">Background Image URL:</label>
+        <input type="text" id="bg-image" placeholder="Enter background image URL" oninput="updatePreview()">
 
-    <label for="gif-url">GIF URL:</label>
-    <input type="text" id="gif-url" placeholder="Enter GIF URL" oninput="updatePreview()">
+        <label for="button-text">Button Text:</label>
+        <input type="text" id="button-text" placeholder="Enter button text" oninput="updatePreview()">
 
-    <h2>Generated HTML Code</h2>
-    <div class="output" id="output"></div>
-</div>
+        <label for="gif-url">GIF URL:</label>
+        <input type="text" id="gif-url" placeholder="Enter GIF URL" oninput="updatePreview()">
 
-<div class="output-panel" id="preview">
-    <h2>Live Preview</h2>
-    <div id="live-preview" style="padding: 20px; border: 1px solid #ccc;"></div>
-</div>
+        <h2>Generated HTML Code</h2>
+        <textarea id="output" readonly></textarea>
 
-<script>
-    function updatePreview() {
-        const bgImage = document.getElementById('bg-image').value;
-        const buttonText = document.getElementById('button-text').value;
-        const gifUrl = document.getElementById('gif-url').value;
+        <button id="add-text-btn">Add Text Block</button>
+        <button id="add-button-btn">Add Button Block</button>
+    </div>
 
-        const livePreviewDiv = document.getElementById('live-preview');
-        
-        // Set the HTML of the live preview div
-        livePreviewDiv.innerHTML = `
-            <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
-                <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
-                <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
-            </div>
-        `;
-        
-        // Update the output code in the output div
-        const generatedHTML =`
-            <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
-                <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
-                <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
-            </div>
-        `;
+    <div class="output-panel" id="preview">
+        <h2>Live Preview</h2>
+        <div id="live-preview" style="padding: 20px; border: 1px solid #ccc;"></div>
+    </div>
 
-        document.getElementById('output').textContent = generatedHTML.trim();
-    }
-</script>
+    <div id="popup">Random Popup!</div>
+
+    <script>
+        function updatePreview() {
+            const bgImage = document.getElementById('bg-image').value;
+            const buttonText = document.getElementById('button-text').value;
+            const gifUrl = document.getElementById('gif-url').value;
+
+            const livePreviewDiv = document.getElementById('live-preview');
+
+            // Set the HTML of the live preview div
+            livePreviewDiv.innerHTML = `
+                <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
+                    <button style="padding: 10px 20px; font-size: 16px; transition: background-color 0.3s; cursor: pointer;">${buttonText}</button><br><br>
+                    <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
+                </div>
+            `;
+
+            // Update the output code in the output div
+            const generatedHTML = `
+                <div style="background-image: url('${bgImage}'); padding: 20px; border: 1px solid #ccc; background-size: cover;">
+                    <button style="padding: 10px 20px; font-size: 16px;">${buttonText}</button><br><br>
+                    <img src="${gifUrl}" alt="GIF" style="max-width: 100%; height: auto;">
+                </div>
+            `;
+
+            document.getElementById('output').value = generatedHTML.trim();
+        }
+
+        document.getElementById('add-text-btn').addEventListener('click', () => {
+            const placeholderText = prompt("Enter text to add:");
+            if (placeholderText) {
+                const blockHtml = `<div class="block" contenteditable="true">${placeholderText}</div>`;
+                document.getElementById('live-preview').innerHTML += blockHtml;
+                updateOutput();
+            }
+        });
+
+        document.getElementById('add-button-btn').addEventListener('click', () => {
+            const buttonText = prompt("Enter button text:");
+            if (buttonText) {
+                const blockHtml = `<button class="block" style="padding: 10px; margin-top: 10px;">${buttonText}</button>`;
+                document.getElementById('live-preview').innerHTML += blockHtml;
+                updateOutput();
+            }
+        });
+
+        function updateOutput() {
+            const previewHtml = document.getElementById('live-preview').innerHTML;
+            document.getElementById('output').value = previewHtml;
+        }
+
+        // Random Popup implementation
+        setInterval(() => {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'block';
+            popup.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+            popup.style.left = Math.random() * (window.innerWidth - 200) + 'px';
+
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 2000); // Display for 2 seconds
+        }, 5000); // Random popup every 5 seconds
+
+    </script>
 
 </body>
+
 </html>
